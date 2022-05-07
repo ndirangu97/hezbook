@@ -30,8 +30,8 @@ if (is_array($results)) {
   <title>Profile</title>
   <link rel="stylesheet" href="./home.css" />
   <link rel="preconnect" href="https://fonts.googleapis.com">
-<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Roboto:ital,wght@0,100;0,300;0,400;0,500;0,700;0,900;1,100;1,300;1,400;1,500;1,700;1,900&display=swap" rel="stylesheet">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Roboto:ital,wght@0,100;0,300;0,400;0,500;0,700;0,900;1,100;1,300;1,400;1,500;1,700;1,900&display=swap" rel="stylesheet">
 </head>
 
 <body>
@@ -114,6 +114,7 @@ if (is_array($results)) {
         <ul id="sidebarFriendList">
           <?php
 
+
           $sql = false;
           $data = false;
 
@@ -137,18 +138,17 @@ if (is_array($results)) {
               if (is_array($results2)) {
                 foreach ($results2 as $row2) {
                   echo "
-                  <a href='profile.php?id=$row2->userid'>
-                  <li id='sidebarFriend'>
-                          <img class='sidebarFriendImg' src='assets/person/1.jpeg' alt='' />
+                  <a href='profile.php?id=$row2->userid' style='text-decoration:none;color:inherit'>
+                  <li id='sidebarFriend' style='width:300px;height:60px;border-radius:8px;background:rgb(231, 230, 230);padding-left:20px'>
+                          <img class='sidebarFriendImg' style='margin-right:30px' src='$row2->profile' alt='' />
                           <span class='sidebarFriendName'>$row2->firstname $row2->lastname</span>
-                        </li>
+                  </li>
                         </a>     
-                        ";
+          ";
                 }
               }
             }
           }
-
 
 
           ?>
@@ -171,12 +171,27 @@ if (is_array($results)) {
 
           <?php
 
+
+          $sql = false;
+          $data = false;
+
+          $data["me"] = $_GET["id"];
+          $sql = "SELECT * FROM users WHERE userid=:me";
+          $results = $DB->read($sql, $data);
+
+          if (is_array($results)) {
+            $results = $results[0];
+            $r = $results->friends;
+            $ra = unserialize(base64_decode($r));
+          }
           $ui = $_GET["id"];
           if (in_array($ui, $ra)) {
             echo "<p class='sndReq'>Friends </p>";
           } else {
-            echo "<p class='sndReq' onclick='addFriend()'>Add Friend</p>";
+            echo "<p class='sndReq' id='fnd' onclick='addFriend()'>Add Friend</p>";
           }
+
+
 
 
           ?>
@@ -191,7 +206,7 @@ if (is_array($results)) {
               <div class="shareWrapper">
                 <div class="shareTop">
                   <img class="shareProfileImg" src="./assets/person/1.jpeg" alt="" />
-                  <input placeholder="What's in your mind <?php echo ($results->firstname)  ?>?" class="shareInput" />
+                  <input placeholder="Write something to  <?php echo ($results->firstname)  ?>" class=" shareInput" />
                 </div>
                 <hr class="shareHr" />
                 <div class="shareBottom">
@@ -266,32 +281,39 @@ if (is_array($results)) {
                 <span class="rightbarInfoValue">Single</span>
               </div>
             </div>
-            <h4 class="rightbarTitle">User friends</h4>
+            <h4 class="rightbarTitle"><?php echo ($results->firstname) . "'s"  ?> photos</h4>
             <div class="rightbarFollowings">
-              <div class="rightbarFollowing">
-                <img src="assets/person/1.jpeg" alt="" class="rightbarFollowingImg" />
-                <span class="rightbarFollowingName">John Carter</span>
-              </div>
-              <div class="rightbarFollowing">
-                <img src="assets/person/2.jpeg" alt="" class="rightbarFollowingImg" />
-                <span class="rightbarFollowingName">John Carter</span>
-              </div>
-              <div class="rightbarFollowing">
-                <img src="assets/person/3.jpeg" alt="" class="rightbarFollowingImg" />
-                <span class="rightbarFollowingName">John Carter</span>
-              </div>
-              <div class="rightbarFollowing">
-                <img src="assets/person/4.jpeg" alt="" class="rightbarFollowingImg" />
-                <span class="rightbarFollowingName">John Carter</span>
-              </div>
-              <div class="rightbarFollowing">
-                <img src="assets/person/5.jpeg" alt="" class="rightbarFollowingImg" />
-                <span class="rightbarFollowingName">John Carter</span>
-              </div>
-              <div class="rightbarFollowing">
-                <img src="assets/person/6.jpeg" alt="" class="rightbarFollowingImg" />
-                <span class="rightbarFollowingName">John Carter</span>
-              </div>
+              <?php
+
+              $sql = false;
+              $data = false;
+
+              $data["me"] = $_GET["id"];
+              $sql = "SELECT * FROM posts WHERE sender=:me and profile!=null";
+              $resultsp = $DB->read($sql, $data);
+
+              if (is_array($resultsp)) {
+                foreach ($resultsp as $row2) {
+                  echo "
+                    <a href='profile.php?id=$row2->userid' style='text-decoration:none;color:inherit'>
+                        <div class='rightbarFollowing'>
+                        <img src='$row2->profile'  class='rightbarFollowingImg' />
+                       
+                      </div>
+                    </a>     
+                          ";
+                }
+              } else {
+                echo "
+                $results->firstname hasn't posted any photos yet
+                    
+                      ";
+              }
+
+
+
+
+              ?>
             </div>
           </div>
         </div>
@@ -302,6 +324,18 @@ if (is_array($results)) {
 
 </html>
 <script>
+  const myform = new FormData();
+  const href = window.location.href;
+  // console.log(href);
+  const param = new URLSearchParams(href);
+  const url = param.toString();
+  // console.log(param.toString());
+  // const p=url.slice(52);
+  
+  
+  const p = url.replace("http%3A%2F%2Flocalhost%2Fhezbook%2Fprofile.php%3Fid=", "");
+  localStorage.setItem("idp", p);
+  const id = localStorage.getItem("idp");
   const sendData = (data, type) => {
 
     var xml = new XMLHttpRequest();
@@ -322,7 +356,7 @@ if (is_array($results)) {
     xml.send(data_string);
   }
   const handleResult = (results) => {
-    // alert(results);
+    alert(results);
 
     let data = JSON.parse(results);
     switch (data.type) {
@@ -337,29 +371,29 @@ if (is_array($results)) {
     }
   }
 
-  setInterval(() => {
-    const ownid = localStorage.getItem("id");
-    const status = window.navigator.onLine;
-    if (status) online()
-    else offline()
 
-    window.addEventListener('online', online)
-    window.addEventListener('offline', offline)
+  const ownid = localStorage.getItem("id");
+  const status = window.navigator.onLine;
+  if (status) online()
+  else offline()
 
-    function online() {
-      
-      sendData({
-        id:ownid
-      }, 'online')
-    }
+  window.addEventListener('online', online)
+  window.addEventListener('offline', offline)
 
-    function offline() {
+  function online() {
 
-      sendData({
-        id:ownid
-      }, 'offline')
-    }
-  }, 5000);
+    sendData({
+      id: ownid
+    }, 'online')
+  }
+
+  function offline() {
+
+    sendData({
+      id: ownid
+    }, 'offline')
+  }
+
 
 
 
@@ -368,5 +402,8 @@ if (is_array($results)) {
     sendData({
       reciever: p
     }, "friend")
+
+    let f=document.getElementById('fnd')
+    f.innerHTML="Request Sent"
   }
 </script>

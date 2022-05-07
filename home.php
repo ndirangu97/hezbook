@@ -195,23 +195,15 @@ if (is_array($results)) {
             </div>
             <div class="shareBottom">
               <div class="shareOptions">
-                <div class="shareOption">
-                  <PermMedia htmlColor="tomato" class="shareIcon" />
-                  <input type="file" name="file" id="profileFile" onchange="changeProfilePic(this.files)">
-                  <span class="shareOptionText">Photo or Video</span>
+                <div class="shareOption" style="display: flex;justify-content:center;align-items:center">
+               
+                  <input style="display: none;" type="file" name="file" id="profileFile" onchange="changeProfilePic(this.files)">
+                 <label for="profileFile"><img src="./assets/photo-gallery.png" style="height: 50px;width:50px;object-fit:cover"></label>
+                  <p style="margin-left: 10px;">Post a Photo/Video </p>
                 </div>
-                <div class="shareOption">
-                  <label htmlColor="blue" class="shareIcon" />
-                  <span class="shareOptionText">Tag</span>
-                </div>
-                <div class="shareOption">
-                  <Room htmlColor="green" class="shareIcon" />
-                  <span class="shareOptionText">Location</span>
-                </div>
-                <div class="shareOption">
-                  <EmojiEmotions htmlColor="goldenrod" class="shareIcon" />
-                  <span class="shareOptionText">Feelings</span>
-                </div>
+                
+                
+                
               </div>
               <input type="submit" class="shareButton" value="Share" onclick="sendProfile()"></input>
             </div>
@@ -249,9 +241,10 @@ if (is_array($results)) {
                 $if=$idd.'good';
                 // $idd=$p->postid.'i';
                 $idi=$idd.'v';
+                $cm=$idi.'com';
+                $com=$cm.'modal';
                
 
-                
                 
               
               echo "
@@ -271,23 +264,26 @@ if (is_array($results)) {
                   <span class='postText'>$p->status</span>
                   <img class='postImg' src='$p->profile' />
                 </div>
-                <div class='postBottom'>
+                <div class='postBottom' >
                   <div class='postBottomLeft'>
                     <img class='likeIcon' id='lkImg' src='assets/like.png' onClick='likeHandler()' />
                   
                     <span class='postLikeCounter'><span id='ls' >You and </span>54 people like it</span>
                   </div>
-                  <div id='$idd' onclick='writeComment(event)' style='cursor:pointer'> write</div>
-                  <div class='postBottomRight'  >
-                    <span class='postCommentText'  onclick='readComments()'>9 comments</span>
+                  <div><img id='$idd' onclick='writeComment(event)' src='./assets/chat.png' style='height:20px;width:20px;cursor:pointer' /></div>
+                  <div class='postBottomRight' style='cursor:pointer' id='$cm' onclick='readComments(event)'  >
+                     9 comments  
                   </div>
                 </div>
                 <div id='$if' style='display:none'>
               
 
-                  <input  type='text' class=' $p->postid' placeholder='write a cooment' />
-                  <input id=' $p->postid'  type='submit' value='Send' onclick='sendComment(event)' />
+                  <input  type='text' class='$p->postid' placeholder='write a comment' />
+                  <input id='$p->postid'  type='submit' value='Send' onclick='sendComment(event)' />
                   
+                </div>
+                <div class='$cm' style='display:none'>
+                   comments
                 </div>
                 
             </div>
@@ -303,7 +299,7 @@ if (is_array($results)) {
       </div>
     </div>
     <div class="rightbar">
-      <div class="rightbarWrapper">
+      <div class="rightbarWrapper" style="display: flex;flex-direction:column;align-items:center">
         <div class="birthdayContainer">
           <img class="birthdayImg" src="assets/gift.png" alt="" />
           <span class="birthdayText">
@@ -313,7 +309,7 @@ if (is_array($results)) {
         </div>
         <img class="rightbarAd" src="assets/ad.png" alt="" />
         <h4 class="rightbarTitle">Online Friends</h4>
-        <ul id="sidebarFriendList">
+        <ul id="sidebarFriendList" >
           <?php
 
           $sql = false;
@@ -339,11 +335,11 @@ if (is_array($results)) {
               if (is_array($results2)) {
                 foreach ($results2 as $row2) {
                   echo "
-                  <a href='profile.php?id=$row2->userid'>
-                  <li id='sidebarFriend'>
-                          <img class='sidebarFriendImg' src='assets/person/1.jpeg' alt='' />
+                  <a href='profile.php?id=$row2->userid' style='text-decoration:none;color:inherit'>
+                  <li id='sidebarFriend' style='width:300px;height:60px;border-radius:8px;background:rgb(231, 230, 230);padding-left:20px'>
+                          <img class='sidebarFriendImg' style='margin-right:30px' src='$row2->profile' alt='' />
                           <span class='sidebarFriendName'>$row2->firstname $row2->lastname</span>
-                        </li>
+                  </li>
                         </a>     
                         ";
                 }
@@ -405,7 +401,7 @@ if (is_array($results)) {
     xml.send(data_string);
   }
   const handleResult = (results) => {
-    alert(results);
+    // alert(results);
 
     let data = JSON.parse(results);
     switch (data.type) {
@@ -427,6 +423,7 @@ if (is_array($results)) {
         sendData({}, 'request')
 
         break;
+     
 
     }
   }
@@ -486,7 +483,7 @@ if (is_array($results)) {
     }
 
     myform.append('type', 'post');
-    alert(JSON.stringify(myform))
+    
 
     var xml = new XMLHttpRequest();
     xml.onload = function() {
@@ -502,9 +499,18 @@ if (is_array($results)) {
   //func to handle file results
   const handleFileResult = (results) => {
 
-    alert(results);
+    // alert(results);
 
     var f = JSON.parse(results);
+    switch (f.type) {
+      case 'post':
+        location.reload()
+
+        break;
+    
+      default:
+        break;
+    }
 
   }
 
@@ -563,7 +569,7 @@ if (is_array($results)) {
       i.src="./assets/like.png";
       ls.style.display="none";
     }
-    alert(like);
+    
   }
 
   var like2=true;
@@ -602,8 +608,23 @@ if (is_array($results)) {
         id:y
       },"comment")
     }
-  } 
-  const readComments=()=>{
-    alert('hh')
+  }  
+  var like3=true;
+  const readComments=(e)=>{
+  
+    let mo=document.getElementsByClassName(e.target.id)[0]
+    
+    mo.style.display='block'
+
+    
+    if (like3==false) {
+      like3=true;
+      mo.style.display="none";
+      
+    }else if (like3==true) {
+      like3=false;
+      mo.style.display="block";
+     
+    }
   }
 </script>

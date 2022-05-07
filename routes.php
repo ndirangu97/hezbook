@@ -8,7 +8,7 @@ $DATA_OBJECT = json_decode($DATA_RAW);
 $info = (object)[];
 
 $DB=new Database();
-print_r($DATA_OBJECT);
+// print_r($DATA_OBJECT);
 
 
 
@@ -91,6 +91,7 @@ function generateMessageId()
 	}
 	return $r;
 }
+
 
 ?>
 
